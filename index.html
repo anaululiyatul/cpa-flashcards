@@ -519,12 +519,25 @@ function displayFlip() {
   const con = document.getElementById('flashcardContainer'), empty = document.getElementById('emptyState');
   if (!filtered.length) { con.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none'; con.style.display = 'grid'; document.getElementById('quizContainer').classList.remove('active'); document.getElementById('quizContainer').style.display = 'none';
-  con.innerHTML = filtered.map((c, i) => `<div class="flashcard ${c.module}" data-id="${c.id}"><div class="flashcard-inner"><div class="flashcard-front"><div class="card-module">${c.module}</div><div class="card-question">${c.q}</div><div class="card-footer"><span class="card-difficulty difficulty-${c.difficulty}">${c.difficulty}</span><div class="card-hint">Click to reveal</div></div></div><div class="flashcard-back"><div class="card-answer">${c.a}</div><div class="card-footer" style="border-color:#10b981"><div style="font-size:0.85em;color:#86efac;margin-bottom:10px">How well?</div><div class="rating-buttons"><button class="rate-btn again" data-q="0">Again</button><button class="rate-btn hard" data-q="1">Hard</button><button class="rate-btn good" data-q="2">Good</button><button class="rate-btn easy" data-q="3">Easy</button></div></div></div></div></div>`).join('');
+  con.innerHTML = filtered.map((c, i) => `<div class="flashcard ${c.module}" data-id="${c.id}"><div class="flashcard-inner"><div class="flashcard-front"><div class="card-module">${c.module}</div><div class="card-question">${c.q}</div><div class="card-footer"><span class="card-difficulty difficulty-${c.difficulty}">${c.difficulty}</span><div class="card-hint">Click to reveal</div></div></div><div class="flashcard-back"><div class="card-answer">${c.a}</div><div class="card-footer" style="border-color:#10b981"><div style="font-size:0.85em;color:#059669;margin-bottom:10px">How well?</div><div class="rating-buttons"><button class="rate-btn again" data-q="0">Again</button><button class="rate-btn hard" data-q="1">Hard</button><button class="rate-btn good" data-q="2">Good</button><button class="rate-btn easy" data-q="3">Easy</button></div></div></div></div></div>`).join('');
   document.querySelectorAll('.flashcard').forEach(fc => {
     fc.addEventListener('click', e => { if (!e.target.closest('.rating-buttons')) fc.classList.toggle('flipped'); });
     fc.querySelectorAll('.rate-btn').forEach(rb => rb.addEventListener('click', e => {
       e.stopPropagation();
-      const sm2 = new SM2(fc.dataset.id); sm2.rate(parseInt(e.target.dataset.q)); updateDash(); fc.classList.add('flipped');
+      const q = parseInt(e.target.dataset.q);
+      const sm2 = new SM2(fc.dataset.id); sm2.rate(q);
+      const colors = {0:'#fee2e2',1:'#fef3c7',2:'#dbeafe',3:'#d1fae5'};
+      const labels = {0:'Again — see you soon!',1:'Noted — will repeat',2:'Good — scheduled',3:'Easy — interval extended'};
+      fc.querySelectorAll('.rate-btn').forEach(b => b.style.opacity = '0.3');
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'scale(1.1)';
+      fc.querySelector('.card-answer').innerHTML += '<div style="margin-top:12px;padding:8px 12px;border-radius:6px;background:'+colors[q]+';font-weight:600;font-size:0.9em;text-align:center">'+labels[q]+'</div>';
+      setTimeout(() => {
+        fc.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        fc.style.opacity = '0';
+        fc.style.transform = 'scale(0.95)';
+        setTimeout(() => { fc.remove(); updateDash(); }, 400);
+      }, 800);
     }));
   });
 }
@@ -575,3 +588,4 @@ init();
 </script>
 </body>
 </html>
+New task - Claude
